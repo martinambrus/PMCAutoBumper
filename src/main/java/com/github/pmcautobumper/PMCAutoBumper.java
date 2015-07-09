@@ -1,15 +1,19 @@
 package com.github.pmcautobumper;
 
 import java.io.IOException;
+import java.net.URL;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 
 import com.gargoylesoftware.htmlunit.BrowserVersion;
 import com.gargoylesoftware.htmlunit.NicelyResynchronizingAjaxController;
+import com.gargoylesoftware.htmlunit.Page;
+import com.gargoylesoftware.htmlunit.RefreshHandler;
 import com.gargoylesoftware.htmlunit.WebClient;
 import com.gargoylesoftware.htmlunit.html.HtmlElement;
 import com.gargoylesoftware.htmlunit.html.HtmlForm;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
+
 import org.apache.commons.logging.LogFactory;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -20,6 +24,15 @@ import org.bukkit.plugin.java.JavaPlugin;
 public class PMCAutoBumper extends JavaPlugin
 {
 	WebClient webClient;
+	//http://stackoverflow.com/questions/12057650/htmlunit-failure-attempted-immediaterefreshhandler-outofmemoryerror-use-wait
+	RefreshHandler rh = new RefreshHandler()
+	{
+		@Override
+		public void handleRefresh(Page arg0, URL arg1, int arg2)
+				throws IOException {
+			// nothing
+		}
+	};
 
 	public void onEnable()
 	{
@@ -206,6 +219,7 @@ public class PMCAutoBumper extends JavaPlugin
 		//May or may not be necessary
 		webClient.getOptions().setCssEnabled(true);
 		webClient.getOptions().setRedirectEnabled(true);
+		webClient.setRefreshHandler(rh);
 		//PMC is apparently poorly designed, as HTMLUnit complains quite loudly about the site unless we tell it to shut up
 		LogFactory.getFactory().setAttribute("org.apache.commons.logging.Log", "org.apache.commons.logging.impl.NoOpLog");
 		java.util.logging.Logger.getLogger("com.gargoylesoftware.htmlunit").setLevel(Level.OFF);
