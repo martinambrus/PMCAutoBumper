@@ -4,18 +4,19 @@ import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 
-import com.gargoylesoftware.htmlunit.BrowserVersion;
-import com.gargoylesoftware.htmlunit.NicelyResynchronizingAjaxController;
-import com.gargoylesoftware.htmlunit.WebClient;
-import com.gargoylesoftware.htmlunit.html.HtmlElement;
-import com.gargoylesoftware.htmlunit.html.HtmlForm;
-import com.gargoylesoftware.htmlunit.html.HtmlPage;
 import org.apache.commons.logging.LogFactory;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.plugin.java.JavaPlugin;
+
+import com.gargoylesoftware.htmlunit.BrowserVersion;
+import com.gargoylesoftware.htmlunit.NicelyResynchronizingAjaxController;
+import com.gargoylesoftware.htmlunit.WebClient;
+import com.gargoylesoftware.htmlunit.html.HtmlElement;
+import com.gargoylesoftware.htmlunit.html.HtmlForm;
+import com.gargoylesoftware.htmlunit.html.HtmlPage;
 
 public class PMCAutoBumper extends JavaPlugin
 {
@@ -42,6 +43,7 @@ public class PMCAutoBumper extends JavaPlugin
 		}
 	}
 
+	@Override
 	public boolean onCommand(final CommandSender sender, Command cmd, String label, String[] args)
 	{
 		if (cmd.getName().equalsIgnoreCase("bump"))
@@ -112,8 +114,9 @@ public class PMCAutoBumper extends JavaPlugin
 	 */
 	public boolean bump(CommandSender sender, String username, String password, String serverPage)
 	{
-		if(sender != null)
+		if(sender != null) {
 			sender.sendMessage(ChatColor.GREEN+"Attempting to bump server...");
+		}
 
 		HtmlPage page;
 		try
@@ -127,13 +130,15 @@ public class PMCAutoBumper extends JavaPlugin
 
 		if(page.getTitleText().matches(".*Website is currently unreachable.*"))
 		{
-			if(sender != null)
+			if(sender != null) {
 				sender.sendMessage(ChatColor.RED+"PMC is currently offline.");
+			}
 			return false;
 		}
 
-		if(sender != null)
+		if(sender != null) {
 			sender.sendMessage(ChatColor.GREEN+"Connected to planet minecraft.");
+		}
 
 		try
 		{
@@ -160,13 +165,16 @@ public class PMCAutoBumper extends JavaPlugin
 			return false;
 		}
 
-		if(sender != null)
+		if(sender != null) {
 			sender.sendMessage(ChatColor.GREEN+"Logged into planet minecraft.");
+		}
 
 		String serverId = serverPage.replaceAll("\\D+", "");
 
 		try
 		{
+			webClient.getCookieManager().clearCookies();
+			webClient.getCookieManager().setCookiesEnabled(true);
 			page = webClient.getPage("http://www.planetminecraft.com/account/manage/servers/"+serverId+"/#tab_log");
 		} catch(IOException e)
 		{
@@ -174,24 +182,28 @@ public class PMCAutoBumper extends JavaPlugin
 			return false;
 		}
 
-		if(sender != null)
+		if(sender != null) {
 			sender.sendMessage(ChatColor.GREEN+"Navigated to update page.");
+		}
 
 		try
 		{
 			HtmlElement bumpElement = (HtmlElement) page.getElementById("bump");
 			bumpElement.click();
-			if(sender != null)
+			if(sender != null) {
 				sender.sendMessage(ChatColor.GREEN+"Clicked bump button.");
+			}
 		} catch(Exception e)
 		{
-			if(sender != null)
+			if(sender != null) {
 				sender.sendMessage(ChatColor.RED+"Could not bump server, you have bumped the server sometime in the past 24 hours.");
+			}
 			return false;
 		}
 
-		if(sender != null)
+		if(sender != null) {
 			sender.sendMessage(ChatColor.GREEN+"Server sucessfully bumped!");
+		}
 		return true;
 	}
 

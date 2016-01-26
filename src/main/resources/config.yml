@@ -1,5 +1,5 @@
 username: 'example@example.com'
 password: 'password'
-server-page: 'http://www.planetminecraft.com/server/example-2408479/'
+server-page: 'http://www.planetminecraft.com/account/manage/servers/example-2408479/'
 autobump: true
 last-bump: 0
