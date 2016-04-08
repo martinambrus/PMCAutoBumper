@@ -6,7 +6,7 @@
 
     <groupId>com.github.pmcautobump</groupId>
     <artifactId>PMCAutoBumper</artifactId>
-    <version>0.1</version>
+    <version>0.2</version>
 
     <name>PMCAutoBumper</name>
     <description>A plugin that allows PMC to be bumped automatically.</description>
@@ -27,14 +27,12 @@
         <dependency>
             <groupId>org.spigotmc</groupId>
             <artifactId>spigot-api</artifactId>
-            <version>1.8.7-R0.1-SNAPSHOT</version>
+            <version>1.9-R0.1-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>net.sourceforge.htmlunit</groupId>
             <artifactId>htmlunit</artifactId>
-            <version>2.12</version>
-            <type>jar</type>
-            <scope>compile</scope>
+            <version>2.15</version>
         </dependency>
     </dependencies>
 
@@ -58,7 +56,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
-                <version>2.0</version>
+                <version>2.1</version>
                 <executions>
                     <execution>
                         <phase>package</phase>

@@ -1,6 +1,6 @@
 name: PMCAutoBumper
 main: com.github.pmcautobumper.PMCAutoBumper
-version: 0.1
+version: 0.2
 commands:
     bump:
         description: Attempt to bump the planet minecraft server page.

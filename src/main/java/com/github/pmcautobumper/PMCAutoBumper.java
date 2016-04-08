@@ -149,7 +149,8 @@ public class PMCAutoBumper extends JavaPlugin
 
 		try
 		{
-			HtmlForm form = page.getFirstByXPath("/html/body//div[@class='half']/form");
+			//HtmlForm form = page.getFirstByXPath("/html/body//div[@class='half']/form");
+			HtmlForm form = page.getFirstByXPath("//*[@id='full_screen']/div/div/div/form");
 			HtmlElement usernameElement = form.getInputByName("username");
 			HtmlElement passwordElement = form.getInputByName("password");
 			HtmlElement loginElement = form.getInputByName("login");
@@ -211,7 +212,7 @@ public class PMCAutoBumper extends JavaPlugin
 	private void enableWebClient()
 	{
 		//Arbitrary choice of browser
-		webClient = new WebClient(BrowserVersion.FIREFOX_17);
+		webClient = new WebClient(BrowserVersion.FIREFOX_24);
 		//This gives time for the javascript to load. If we don't allow it to load, clicking the bump button fails
 		webClient.setAjaxController(new NicelyResynchronizingAjaxController());
 		//Since we're giving time for javascript to load, we obviously want javascript enabled as well
