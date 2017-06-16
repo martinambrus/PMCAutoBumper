@@ -2,6 +2,8 @@ package com.github.pmcautobumper;
 
 import java.io.IOException;
 import java.net.URL;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 
@@ -23,6 +25,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 public class PMCAutoBumper extends JavaPlugin
 {
+	long lastBump;
 	WebClient webClient;
 	//http://stackoverflow.com/questions/12057650/htmlunit-failure-attempted-immediaterefreshhandler-outofmemoryerror-use-wait
 	RefreshHandler rh = new RefreshHandler()
@@ -40,7 +43,9 @@ public class PMCAutoBumper extends JavaPlugin
 		enableWebClient();
 
 		saveDefaultConfig();
-
+		
+		lastBump = getConfig().getLong("last-bump", 0);
+		
 		if(getConfig().getBoolean("autobump"))
 		{
 			Bukkit.getScheduler().runTaskTimerAsynchronously(this, new Runnable()
@@ -50,7 +55,8 @@ public class PMCAutoBumper extends JavaPlugin
 				{
 					attemptBump();
 				}
-			}, 10L, TimeUnit.MINUTES.toSeconds(30) * 20);
+			//}, 10L, TimeUnit.MINUTES.toSeconds(30) * 20);
+			}, 10L, TimeUnit.MINUTES.toSeconds(5) * 20);
 		}
 	}
 
@@ -88,10 +94,27 @@ public class PMCAutoBumper extends JavaPlugin
 		return true;
 	}
 
-	public void attemptBump()
-	{
-		getLogger().log(Level.INFO, "Checking to see if the server can be bumped....");
-		long lastBump = getConfig().getLong("last-bump", 0);
+	public void attemptBump() {
+		
+		if(TimeUnit.MILLISECONDS.toHours(System.currentTimeMillis() - lastBump) >= 24) {
+			getLogger().log(Level.INFO, "The server requires bumping.");
+			SimpleDateFormat df = new SimpleDateFormat("HH");
+			if (Integer.parseInt(df.format(new Date())) >= 15
+					&& Integer.parseInt(df.format(new Date())) < 19) {
+				if(bumpWithConfigSettings(Bukkit.getConsoleSender())) {
+					lastBump = System.currentTimeMillis();
+					getConfig().set("last-bump", lastBump);
+					saveConfig();
+				}
+			} else {
+				getLogger().log(Level.INFO, "However, it is not between 15:00 and 19:00.");
+				getLogger().log(Level.INFO, "Server is waiting a day to return to normal schedule.");
+			}
+		} else {
+			getLogger().log(Level.INFO, "The server does not require bumping.");
+		}
+		
+		/*long lastBump = getConfig().getLong("last-bump", 0);
 		long lastBumpHours = TimeUnit.MILLISECONDS.toHours(lastBump);
 		long currentTimeHours = TimeUnit.MILLISECONDS.toHours(System.currentTimeMillis());
 		if(currentTimeHours - lastBumpHours >= 24)
@@ -105,7 +128,7 @@ public class PMCAutoBumper extends JavaPlugin
 		} else
 		{
 			getLogger().log(Level.INFO, "The server does not require bumping.");
-		}
+		}*/
 	}
 
 	private boolean bumpWithConfigSettings(CommandSender sender)
@@ -115,12 +138,12 @@ public class PMCAutoBumper extends JavaPlugin
 
 	/**
 	 * Logs into PMC with the defined username and password, and attempts to bump the defined server page.
-	 * It is HIGHLY reccomended that you run this method asynchronously, as it WILL freeze the thread it's running in.
+	 * It is HIGHLY recommended that you run this method asynchronously, as it WILL freeze the thread it's running in.
 	 * @param sender		CommandSender to send updates to, may be null
 	 * @param username		username to log in with
 	 * @param password		password to log in with
 	 * @param serverPage	server page to attempt to bump
-	 * @return				whether or not the bump suceeded
+	 * @return				whether or not the bump succeeded
 	 */
 	public boolean bump(CommandSender sender, String username, String password, String serverPage)
 	{
@@ -160,7 +183,9 @@ public class PMCAutoBumper extends JavaPlugin
 			page = loginElement.click();
 		} catch(Exception e)
 		{
-			e.printStackTrace();
+			sender.sendMessage("Already logged in, or (less likely) PMC has changed login page format.");
+			sender.sendMessage("Contact dev ONLY if this warning persists after 24 hours.");
+			//e.printStackTrace();
 		}
 
 		HtmlElement errorElement = page.getFirstByXPath("/html/body//div[@class='error']");
@@ -200,7 +225,7 @@ public class PMCAutoBumper extends JavaPlugin
 		} catch(Exception e)
 		{
 			if(sender != null)
-				sender.sendMessage(ChatColor.RED+"Could not bump server, you have bumped the server sometime in the past 24 hours.");
+				sender.sendMessage(ChatColor.RED+"Failed. PMC claims server was bumped in the past 24 hours.");
 			return false;
 		}
 
