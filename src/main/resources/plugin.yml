@@ -2,6 +2,6 @@ name: PMCAutoBumper
 main: com.github.pmcautobumper.PMCAutoBumper
 version: 0.1
 commands:
-    bump:
-        description: Attempt to bump the planet minecraft server page.
-        usage: Unrecognized command.
+  bump:
+    description: Attempt to bump the planet minecraft server page.
+    usage: Unrecognized command.
