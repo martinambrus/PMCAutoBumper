@@ -23,12 +23,12 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.plugin.java.JavaPlugin;
 
-public class PMCAutoBumper extends JavaPlugin
-{
-	long lastBump;
-	WebClient webClient;
+public class PMCAutoBumper extends JavaPlugin {
+	private long lastBump;
+	private int bumpInterval;
+	private WebClient webClient;
 	// http://stackoverflow.com/questions/12057650/htmlunit-failure-attempted-immediaterefreshhandler-outofmemoryerror-use-wait
-	RefreshHandler rh = new RefreshHandler() {
+	private RefreshHandler rh = new RefreshHandler() {
 		@Override
 		public void handleRefresh(Page arg0, URL arg1, int arg2)
 				throws IOException {
@@ -40,6 +40,11 @@ public class PMCAutoBumper extends JavaPlugin
 		enableWebClient();
 		saveDefaultConfig();
 		lastBump = getConfig().getLong("last-bump", 0);
+		bumpInterval = getConfig().getInt("last-bump", 15);
+		if (bumpInterval < 5) {
+		    getLogger().log(Level.INFO, "A bump-interval of less than 5 minutes was found. Defaulting to 5 mins.");
+		    bumpInterval = 5;
+		}
 		
 		if (getConfig().getBoolean("autobump")) {
 			Bukkit.getScheduler().runTaskTimerAsynchronously(this, new Runnable() {
@@ -47,7 +52,7 @@ public class PMCAutoBumper extends JavaPlugin
 				public void run() {
 					attemptBump();
 				}
-			}, 10L, TimeUnit.MINUTES.toSeconds(5) * 20);
+			}, 10L, TimeUnit.MINUTES.toSeconds(bumpInterval) * 20);
 		}
 	}
 

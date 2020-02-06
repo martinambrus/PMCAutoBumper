@@ -2,4 +2,5 @@ username: 'example@example.com'
 password: 'password'
 server-page: 'http://www.planetminecraft.com/server/example-2408479/'
 autobump: true
+bump-interval: 15
 last-bump: 0
