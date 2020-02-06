@@ -1,7 +1,15 @@
 name: PMCAutoBumper
 main: com.github.pmcautobumper.PMCAutoBumper
-version: 0.2
+version: 0.3
+api-version: 1.13
+authors: [smaltby, PikaMug]
 commands:
     bump:
+        aliases: pmcbump
         description: Attempt to bump the planet minecraft server page.
+        permission: pmc.bump
         usage: Unrecognized command.
+permissions:
+    pmc.bump:
+        description: Bump the server page.
+        default: op

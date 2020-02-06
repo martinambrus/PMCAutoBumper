@@ -27,9 +27,8 @@ public class PMCAutoBumper extends JavaPlugin
 {
 	long lastBump;
 	WebClient webClient;
-	//http://stackoverflow.com/questions/12057650/htmlunit-failure-attempted-immediaterefreshhandler-outofmemoryerror-use-wait
-	RefreshHandler rh = new RefreshHandler()
-	{
+	// http://stackoverflow.com/questions/12057650/htmlunit-failure-attempted-immediaterefreshhandler-outofmemoryerror-use-wait
+	RefreshHandler rh = new RefreshHandler() {
 		@Override
 		public void handleRefresh(Page arg0, URL arg1, int arg2)
 				throws IOException {
@@ -37,52 +36,37 @@ public class PMCAutoBumper extends JavaPlugin
 		}
 	};
 
-	public void onEnable()
-	{
-		//Enable web client with desired settings
+	public void onEnable() {
 		enableWebClient();
-
 		saveDefaultConfig();
-		
 		lastBump = getConfig().getLong("last-bump", 0);
 		
-		if(getConfig().getBoolean("autobump"))
-		{
-			Bukkit.getScheduler().runTaskTimerAsynchronously(this, new Runnable()
-			{
+		if (getConfig().getBoolean("autobump")) {
+			Bukkit.getScheduler().runTaskTimerAsynchronously(this, new Runnable() {
 				@Override
-				public void run()
-				{
+				public void run() {
 					attemptBump();
 				}
-			//}, 10L, TimeUnit.MINUTES.toSeconds(30) * 20);
 			}, 10L, TimeUnit.MINUTES.toSeconds(5) * 20);
 		}
 	}
 
-	public boolean onCommand(final CommandSender sender, Command cmd, String label, String[] args)
-	{
-		if (cmd.getName().equalsIgnoreCase("bump"))
-		{
-			if(!sender.hasPermission("pmcautobumper.admin"))
-			{
+	public boolean onCommand(final CommandSender sender, Command cmd, String label, String[] args) {
+		if (cmd.getName().equalsIgnoreCase("bump")) {
+			if(!sender.hasPermission("pmcautobumper.admin")) {
 				sender.sendMessage(ChatColor.RED+"You do not have permission to do this.");
 				return true;
 			}
-			if(args.length > 1)
-			{
-				if(args[0].equalsIgnoreCase("reload"))
-				{
+			if (args.length > 1) {
+				if (args[0].equalsIgnoreCase("reload")) {
 					reloadConfig();
 					sender.sendMessage(ChatColor.GREEN+"PMCAutoBumper config sucessfully reloaded.");
 					return true;
-				} else
-				{
+				} else {
 					return false;
 				}
 			}
-			Bukkit.getScheduler().runTaskAsynchronously(this, new Runnable()
-			{
+			Bukkit.getScheduler().runTaskAsynchronously(this, new Runnable() {
 				@Override
 				public void run()
 				{
@@ -90,18 +74,16 @@ public class PMCAutoBumper extends JavaPlugin
 				}
 			});
 		}
-
 		return true;
 	}
 
 	public void attemptBump() {
-		
-		if(TimeUnit.MILLISECONDS.toHours(System.currentTimeMillis() - lastBump) >= 24) {
+		if (TimeUnit.MILLISECONDS.toHours(System.currentTimeMillis() - lastBump) >= 24) {
 			getLogger().log(Level.INFO, "The server requires bumping.");
 			SimpleDateFormat df = new SimpleDateFormat("HH");
 			if (Integer.parseInt(df.format(new Date())) >= 15
 					&& Integer.parseInt(df.format(new Date())) < 19) {
-				if(bumpWithConfigSettings(Bukkit.getConsoleSender())) {
+				if (bumpWithConfigSettings(Bukkit.getConsoleSender())) {
 					lastBump = System.currentTimeMillis();
 					getConfig().set("last-bump", lastBump);
 					saveConfig();
@@ -113,26 +95,9 @@ public class PMCAutoBumper extends JavaPlugin
 		} else {
 			getLogger().log(Level.INFO, "The server does not require bumping.");
 		}
-		
-		/*long lastBump = getConfig().getLong("last-bump", 0);
-		long lastBumpHours = TimeUnit.MILLISECONDS.toHours(lastBump);
-		long currentTimeHours = TimeUnit.MILLISECONDS.toHours(System.currentTimeMillis());
-		if(currentTimeHours - lastBumpHours >= 24)
-		{
-			getLogger().log(Level.INFO, "The server does require bumping.");
-			if(bumpWithConfigSettings(Bukkit.getConsoleSender()))
-			{
-				getConfig().set("last-bump", System.currentTimeMillis());
-				saveConfig();
-			}
-		} else
-		{
-			getLogger().log(Level.INFO, "The server does not require bumping.");
-		}*/
 	}
 
-	private boolean bumpWithConfigSettings(CommandSender sender)
-	{
+	private boolean bumpWithConfigSettings(CommandSender sender) {
 		return bump(sender, getConfig().getString("username"), getConfig().getString("password"), getConfig().getString("server-page"));
 	}
 
@@ -145,14 +110,13 @@ public class PMCAutoBumper extends JavaPlugin
 	 * @param serverPage	server page to attempt to bump
 	 * @return				whether or not the bump succeeded
 	 */
-	public boolean bump(CommandSender sender, String username, String password, String serverPage)
-	{
-		if(sender != null)
+	public boolean bump(CommandSender sender, String username, String password, String serverPage) {
+		if (sender != null) {
 			sender.sendMessage(ChatColor.GREEN+"Attempting to bump server...");
-
+		}
+		
 		HtmlPage page;
-		try
-		{
+		try {
 			page = webClient.getPage("http://www.planetminecraft.com/account/sign_in/");
 		} catch(IOException e)
 		{
@@ -160,18 +124,17 @@ public class PMCAutoBumper extends JavaPlugin
 			return false;
 		}
 
-		if(page.getTitleText().matches(".*Website is currently unreachable.*"))
-		{
+		if (page.getTitleText().matches(".*Website is currently unreachable.*")) {
 			if(sender != null)
 				sender.sendMessage(ChatColor.RED+"PMC is currently offline.");
 			return false;
 		}
 
-		if(sender != null)
+		if (sender != null) {
 			sender.sendMessage(ChatColor.GREEN+"Connected to planet minecraft.");
+		}
 
-		try
-		{
+		try {
 			//HtmlForm form = page.getFirstByXPath("/html/body//div[@class='half']/form");
 			HtmlForm form = page.getFirstByXPath("//*[@id='full_screen']/div/div/div/form");
 			HtmlElement usernameElement = form.getInputByName("username");
@@ -181,63 +144,58 @@ public class PMCAutoBumper extends JavaPlugin
 			usernameElement.type(username);
 			passwordElement.type(password);
 			page = loginElement.click();
-		} catch(Exception e)
-		{
+		} catch (Exception e) {
 			sender.sendMessage("Already logged in, or (less likely) PMC has changed login page format.");
-			sender.sendMessage("Contact dev ONLY if this warning persists after 24 hours.");
-			//e.printStackTrace();
+			sender.sendMessage("Contact developer ONLY if this warning persists after 24 hours.");
 		}
 
 		HtmlElement errorElement = page.getFirstByXPath("/html/body//div[@class='error']");
-		if(errorElement != null)
-		{
-			if(sender != null)
-			{
+		if (errorElement != null) {
+			if (sender != null) {
 				sender.sendMessage(ChatColor.RED+"Login failed.");
 				sender.sendMessage(ChatColor.RED+errorElement.getTextContent());
 			}
 			return false;
 		}
 
-		if(sender != null)
+		if (sender != null) {
 			sender.sendMessage(ChatColor.GREEN+"Logged into planet minecraft.");
+		}
 
 		String serverId = serverPage.replaceAll("\\D+", "");
-
-		try
-		{
+		try {
 			page = webClient.getPage("http://www.planetminecraft.com/account/manage/servers/"+serverId+"/#tab_log");
-		} catch(IOException e)
-		{
+		} catch(IOException e) {
 			e.printStackTrace();
 			return false;
 		}
 
-		if(sender != null)
+		if (sender != null) {
 			sender.sendMessage(ChatColor.GREEN+"Navigated to update page.");
-
-		try
-		{
-			HtmlElement bumpElement = (HtmlElement) page.getElementById("bump");
-			bumpElement.click();
-			if(sender != null)
-				sender.sendMessage(ChatColor.GREEN+"Clicked bump button.");
-		} catch(Exception e)
-		{
-			if(sender != null)
-				sender.sendMessage(ChatColor.RED+"Failed. PMC claims server was bumped in the past 24 hours.");
-			return false;
 		}
 
-		if(sender != null)
+		try {
+			HtmlElement bumpElement = (HtmlElement) page.getElementById("bump");
+			bumpElement.click();
+			if (sender != null) {
+			    sender.sendMessage(ChatColor.GREEN+"Clicked bump button.");
+			}
+		} catch (Exception e) {
+			if (sender != null) {
+				sender.sendMessage(ChatColor.RED+"Failed. PMC claims server was bumped in the past 24 hours.");
+				return false;
+			}
+		}
+
+		if (sender != null) {
 			sender.sendMessage(ChatColor.GREEN+"Server sucessfully bumped!");
+		}
 		return true;
 	}
 
-	private void enableWebClient()
-	{
+	private void enableWebClient() {
 		//Arbitrary choice of browser
-		webClient = new WebClient(BrowserVersion.FIREFOX_24);
+		webClient = new WebClient(BrowserVersion.FIREFOX_60);
 		//This gives time for the javascript to load. If we don't allow it to load, clicking the bump button fails
 		webClient.setAjaxController(new NicelyResynchronizingAjaxController());
 		//Since we're giving time for javascript to load, we obviously want javascript enabled as well
