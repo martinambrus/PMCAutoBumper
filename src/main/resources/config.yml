@@ -3,4 +3,7 @@ password: 'password'
 server-page: 'http://www.planetminecraft.com/server/example-2408479/'
 autobump: true
 bump-interval: 15
+log: true
+start-hour: 15
+stop-hour: 19
 last-bump: 0

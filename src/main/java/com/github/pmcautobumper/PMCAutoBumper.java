@@ -26,6 +26,9 @@ import org.bukkit.plugin.java.JavaPlugin;
 public class PMCAutoBumper extends JavaPlugin {
 	private long lastBump;
 	private int bumpInterval;
+	private boolean log;
+	private int startHour;
+	private int stopHour;
 	private WebClient webClient;
 	// http://stackoverflow.com/questions/12057650/htmlunit-failure-attempted-immediaterefreshhandler-outofmemoryerror-use-wait
 	private RefreshHandler rh = new RefreshHandler() {
@@ -41,6 +44,9 @@ public class PMCAutoBumper extends JavaPlugin {
 		saveDefaultConfig();
 		lastBump = getConfig().getLong("last-bump", 0);
 		bumpInterval = getConfig().getInt("last-bump", 15);
+		log = getConfig().getBoolean("log", true);
+		startHour = getConfig().getInt("start-hour", 15);
+		stopHour = getConfig().getInt("stop-hour", 19);
 		if (bumpInterval < 5) {
 		    getLogger().log(Level.INFO, "A bump-interval of less than 5 minutes was found. Defaulting to 5 mins.");
 		    bumpInterval = 5;
@@ -84,21 +90,23 @@ public class PMCAutoBumper extends JavaPlugin {
 
 	public void attemptBump() {
 		if (TimeUnit.MILLISECONDS.toHours(System.currentTimeMillis() - lastBump) >= 24) {
-			getLogger().log(Level.INFO, "The server requires bumping.");
+			if (log) { getLogger().log(Level.INFO, "The server requires bumping."); }
 			SimpleDateFormat df = new SimpleDateFormat("HH");
-			if (Integer.parseInt(df.format(new Date())) >= 15
-					&& Integer.parseInt(df.format(new Date())) < 19) {
+			if (Integer.parseInt(df.format(new Date())) >= startHour 
+			        && Integer.parseInt(df.format(new Date())) < stopHour) {
 				if (bumpWithConfigSettings(Bukkit.getConsoleSender())) {
 					lastBump = System.currentTimeMillis();
 					getConfig().set("last-bump", lastBump);
 					saveConfig();
 				}
 			} else {
-				getLogger().log(Level.INFO, "However, it is not between 15:00 and 19:00.");
-				getLogger().log(Level.INFO, "Server is waiting a day to return to normal schedule.");
+				if (log) {
+				    getLogger().log(Level.INFO, "However, it is not between "+startHour+":00 and "+stopHour+":00 "+df.getTimeZone());
+				    getLogger().log(Level.INFO, "Server is waiting a day to return to normal schedule.");
+				}
 			}
 		} else {
-			getLogger().log(Level.INFO, "The server does not require bumping.");
+			if (log) { getLogger().log(Level.INFO, "The server does not require bumping."); }
 		}
 	}
 
