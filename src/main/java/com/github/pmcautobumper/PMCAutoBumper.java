@@ -32,7 +32,7 @@ public class PMCAutoBumper extends JavaPlugin
 		@Override
 		public void handleRefresh(Page arg0, URL arg1, int arg2)
 				throws IOException {
-			// nothing
+			// Do nothing
 		}
 	};
 
@@ -135,7 +135,6 @@ public class PMCAutoBumper extends JavaPlugin
 		}
 
 		try {
-			//HtmlForm form = page.getFirstByXPath("/html/body//div[@class='half']/form");
 			HtmlForm form = page.getFirstByXPath("//*[@id='full_screen']/div/div/div/form");
 			HtmlElement usernameElement = form.getInputByName("username");
 			HtmlElement passwordElement = form.getInputByName("password");
@@ -194,17 +193,17 @@ public class PMCAutoBumper extends JavaPlugin
 	}
 
 	private void enableWebClient() {
-		//Arbitrary choice of browser
+		// Arbitrary choice of browser
 		webClient = new WebClient(BrowserVersion.FIREFOX_60);
-		//This gives time for the javascript to load. If we don't allow it to load, clicking the bump button fails
+		// This gives time for the JavaScript to load. If we don't allow it to load, clicking the bump button fails
 		webClient.setAjaxController(new NicelyResynchronizingAjaxController());
-		//Since we're giving time for javascript to load, we obviously want javascript enabled as well
+		// Since we're giving time for JavaScript to load, we obviously want JavaScript enabled as well
 		webClient.getOptions().setJavaScriptEnabled(true);
-		//May or may not be necessary
+		// May or may not be necessary
 		webClient.getOptions().setCssEnabled(true);
 		webClient.getOptions().setRedirectEnabled(true);
 		webClient.setRefreshHandler(rh);
-		//PMC is apparently poorly designed, as HTMLUnit complains quite loudly about the site unless we tell it to shut up
+		// HTMLUnit complains about PMC site design unless we tell it not to
 		LogFactory.getFactory().setAttribute("org.apache.commons.logging.Log", "org.apache.commons.logging.impl.NoOpLog");
 		java.util.logging.Logger.getLogger("com.gargoylesoftware.htmlunit").setLevel(Level.OFF);
 		java.util.logging.Logger.getLogger("org.apache.commons.httpclient").setLevel(Level.OFF);
